@@ -1,0 +1,67 @@
+from ortools.sat.python import cp_model
+
+model = cp_model.CpModel()
+
+compositions = 9
+durations = [int(x) for x in "2 4 1 3 3 2 5 7 6".split()]
+
+rules = [[c == 'x' for c in 'x xx xx x'],
+         [c == 'x' for c in 'x xxxx x '],
+         [c == 'x' for c in 'xx  x  x '],
+         [c == 'x' for c in 'x   x x x'],
+         [c == 'x' for c in ' x xxxx  ']]
+
+players = []
+for rule in rules:
+    players += [[]]
+    for i in range(len(rule)):
+        if rule[i]:
+            players[-1] += [i]
+
+
+
+#variables
+order = [model.NewIntVar(0, compositions, f'x{i}') for i in range(compositions)]
+
+#
+
+#constraints 
+model.AddAllDifferent(order)
+model.Add(order[1] < order[7])
+model.Add(order[4]+1 == order[5])
+#
+
+solver = cp_model.CpSolver()
+status = solver.Solve(model) 
+solution = []
+
+if status == cp_model.OPTIMAL:
+    solution = [solver.Value(c) for c in order]
+
+    print(f"Solution: {solution}")
+
+
+print("Rules:")
+for p in range(len(rules)):
+    print(f'Player{p+1}: ', end='   ')
+    for r in rules[p]: print('x' if r else '.', end = '   ')
+    print()
+print('Durations:', end='  ')
+for d in durations: print(d, end='   ')
+print()
+
+print("Players")
+for p in players: print(p)
+print()
+
+print("Wait timess for:", solution)
+
+
+wait_times = [0 for i in range(len(rules))]
+for p in range(len(rules)):
+    for i in range(rules[p].index(True), compositions):
+        if not i in players[p] and any(rules[p][i+1:]):
+            wait_times[p] += durations[i]
+
+print(wait_times)
+print(sum(wait_times))
