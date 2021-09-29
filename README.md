@@ -6,5 +6,4 @@ Solucion del problema de Orchestra Rehearsal usando el paradigma de constraint p
 2.   Mosqueira Chacón, César Manuel
 3.   Peralta Ireijo, Sebastián Fernando
  
- https://github.com/Cesarmosqueira
-
+https://github.com/Cesarmosqueira/Orchestra-Rehearsal
