@@ -36,18 +36,21 @@ wts = [model.NewIntVar(0, sum(durations), f'wt{i}') for i in range(len(rules))]
 m = 0
 for w in wts:  # m = current player
     # find compositions in which m doesn't participate
-    cw = 0 # current wait time for m
+    cw = 0
+        # current wait time for m player in each song
     for c in range(rules[m].index(True), compositions):
+    #for c in range(rules[m] compositions):
         # c = (first true to 9)
         if not rules[m][c] and any(rules[m][c+1:]):
             cw += durations[c]
             
-        print(1 if rules[m][c] else 0, end= ' ')
+        print(c, end= ' ')
     print(f' -> {cw}')
 
     # w should be the sum of the time where m doesn't participate 
     #                              and doesn't have to be present
     model.Add(w == cw)
+    print(f'w == {cw}')
     m += 1
 
 model.Minimize(sum(wts))
