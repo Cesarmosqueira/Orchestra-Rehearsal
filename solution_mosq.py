@@ -31,23 +31,27 @@ model.Add(order[1] < order[7])  # composition 2 before 8
 model.Add(order[4]+1 == order[5]) # composition 6 immediately after 5
 
 
-# Total wait time 'twt'
-twt = model.NewIntVar(0, sum(durations)*len(rules), 'twt')
-model.Minimize(twt) 
 
-wts = [model.NewIntVar(0, sum(durations), f'wt{i}') for i in range(compositions)]
+wts = [model.NewIntVar(0, sum(durations), f'wt{i}') for i in range(len(rules))]
+m = 0
+for w in wts:  # m = current player
+    # find compositions in which m doesn't participate
+    cw = 0 # current wait time for m
+    for c in range(rules[m].index(True), compositions):
+        # c = (first true to 9)
+        if not rules[m][c] and any(rules[m][c+1:]):
+            cw += durations[c]
+            
+        print(1 if rules[m][c] else 0, end= ' ')
+    print(f' -> {cw}')
 
-ptable = []
-for r in rules:
-    for c in range(compositions):
-        print(r[c], end = ', ')
-    print()
+    # w should be the sum of the time where m doesn't participate 
+    #                              and doesn't have to be present
+    model.Add(w == cw)
+    m += 1
 
+model.Minimize(sum(wts))
 
-
-
-
-#
 
 solver = cp_model.CpSolver()
 status = solver.Solve(model) 
