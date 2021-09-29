@@ -20,15 +20,33 @@ for rule in rules:
 
 
 
-#variables
+# Variables
+
+# List where index is the composition and its value the order
 order = [model.NewIntVar(0, compositions, f'x{i}') for i in range(compositions)]
 
-#
-
-#constraints 
+# Constraints 
 model.AddAllDifferent(order)
-model.Add(order[1] < order[7])
-model.Add(order[4]+1 == order[5])
+model.Add(order[1] < order[7])  # composition 2 before 8
+model.Add(order[4]+1 == order[5]) # composition 6 immediately after 5
+
+
+# Total wait time 'twt'
+twt = model.NewIntVar(0, sum(durations)*len(rules), 'twt')
+model.Minimize(twt) 
+
+wts = [model.NewIntVar(0, sum(durations), f'wt{i}') for i in range(compositions)]
+
+ptable = []
+for r in rules:
+    for c in range(compositions):
+        print(r[c], end = ', ')
+    print()
+
+
+
+
+
 #
 
 solver = cp_model.CpSolver()
@@ -54,8 +72,10 @@ print("Players")
 for p in players: print(p)
 print()
 
-print("Wait timess for:", solution)
 
+# pretty paint solution
+
+print("Wait timess for:", solution)
 
 wait_times = [0 for i in range(len(rules))]
 for p in range(len(rules)):
